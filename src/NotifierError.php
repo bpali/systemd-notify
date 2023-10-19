@@ -1,93 +1,92 @@
 <?php
+/*  
+    This is a Fork of aethalides/systemd-notify package
 
-	/* Copyright(c) 2017 Aethalides@AndyPieters.me.uk
+    Original copyright follows
 
-		This file is part of the aethalides/systemd-notify package
+    --------------------------------------------------------------
 
-		aethalides/systemd-notify is free software: you can redistribute it and/or modify
-		it under the terms of the GNU General Public License as published by
-		the Free Software Foundation, either version 3 of the License, or
-		(at your option) any later version.
+    Copyright(c) 2017 Aethalides@AndyPieters.me.uk
 
-		aethalides/systemd-notify is distributed in the hope that it will be useful,
-		but WITHOUT ANY WARRANTY; without even the implied warranty of
-		MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-		GNU General Public License for more details.
+    This file is part of the aethalides/systemd-notify package
 
-		You should have received a copy of the GNU General Public License
-		along with aethalides/systemd-notify.  If not, see <http://www.gnu.org/licenses/>. */
-	namespace Aethalides\Systemd\Notify {
+    aethalides/systemd-notify is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
 
-		class NotifierError extends \Exception {
+    aethalides/systemd-notify is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
-			public static function socketNotFoundError(?string $strSocket) : self {
+    You should have received a copy of the GNU General Public License
+    along with aethalides/systemd-notify.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
-				return new static(
+namespace Trakosoft\Systemd\Notify;
 
-					strlen($strSocket)
-					?"Socket not found `$strSocket'"
-					:"Socket not specified, check environment variable NOTIFY_SOCKET"
-				);
-			}
+use Exception;
+use Socket;
 
-			public static function fluentFailureError(string $strVariable) : self {
+/**
+ *  @package Trakosoft\Systemd\Notify
+ */
+class NotifierError extends Exception
+{
 
-				return new static(
+    public static function socketNotFoundError(?string $strSocket): self
+    {
+        return new static(
+            strlen($strSocket)
+                ? "Socket not found `$strSocket'"
+                : "Socket not specified, check environment variable NOTIFY_SOCKET"
+        );
+    }
 
-					"Unable to set variable `$strVariable' using fluent interface"
-				);
-			}
+    public static function fluentFailureError(string $strVariable): self
+    {
+        return new static(
+            "Unable to set variable `$strVariable' using fluent interface"
+        );
+    }
 
-			public static function socketNotOpenError() : self {
+    public static function socketNotOpenError(): self
+    {
+        return new static("Socket connection not open");
+    }
 
-				return new static("Socket connection not open");
-			}
+    public static function socketWriteError(int $intLength, int $intWritten): self
+    {
+        return new static(
+            "Error writing to socket. Wrote $intWritten byte(s) out of $intLength"
+        );
+    }
 
-			public static function socketWriteError(int $intLength,int $intWritten) : self {
+    public static function socketAlreadyOpenError(): self
+    {
+        return new static("Socket connection already open");
+    }
 
-				return new static(
+    public static function socketCreateError(Socket $resSocket = null): self
+    {
+        if (is_resource($resSocket)) {
+            $intSocketError = socket_last_error($resSocket);
+        } else {
+            $intSocketError = socket_last_error();
+        }
+        $strError = socket_strerror($intSocketError);
+        return new static(
+            "Error $intSocketError whilst trying to create socket : $strError"
+        );
+    }
 
-					"Error writing to socket. Wrote ${intWritten} byte(s) out of ${intLength}"
-				);
-			}
-
-			public static function socketAlreadyOpenError() : self {
-
-				return new static("Socket connection already open");
-			}
-
-			public static function socketCreateError($resSocket) : self {
-
-				if(is_resource($resSocket)) {
-
-					$intSocketError=socket_last_error($resSocket);
-
-				} else {
-
-					$intSocketError=socket_last_error();
-				}
-
-				$strError=socket_strerror($intSocketError);
-
-				return new static(
-
-					"Error $intSocketError whilst trying to create socket : $strError"
-				);
-
-			}
-
-			public static function socketConnectError(string $strLocation,$resSocket) : self {
-
-				$intSocketError=socket_last_error($resSocket);
-
-				$strError=socket_strerror($intSocketError);
-
-				return new static(
-
-					"Error $intSocketError whilst trying to connect to socket `$strLocation`: $strError"
-				);
-
-			}
-		}
-	}
-?>
+    public static function socketConnectError(string $strLocation, $resSocket): self
+    {
+        $intSocketError = socket_last_error($resSocket);
+        $strError = socket_strerror($intSocketError);
+        return new static(
+            "Error $intSocketError whilst trying to connect to socket `$strLocation`: $strError"
+        );
+    }
+}

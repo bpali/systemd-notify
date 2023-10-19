@@ -1,91 +1,89 @@
 <?php
-	/* Copyright(c) 2017 Aethalides@AndyPieters.me.uk
+/*  
+    This is a Fork of aethalides/systemd-notify package
 
-		This file is part of the aethalides/systemd-notify package
+    Original copyright follows
 
-		aethalides/systemd-notify is free software: you can redistribute it and/or modify
-		it under the terms of the GNU General Public License as published by
-		the Free Software Foundation, either version 3 of the License, or
-		(at your option) any later version.
+    --------------------------------------------------------------
 
-		aethalides/systemd-notify is distributed in the hope that it will be useful,
-		but WITHOUT ANY WARRANTY; without even the implied warranty of
-		MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-		GNU General Public License for more details.
+    Copyright(c) 2017 Aethalides@AndyPieters.me.uk
 
-		You should have received a copy of the GNU General Public License
-		along with aethalides/systemd-notify.  If not, see <http://www.gnu.org/licenses/>. */
-	namespace Aethalides\Systemd\Notify {
+    This file is part of the aethalides/systemd-notify package
 
-		/** Fluent interface for interacting with the Systemd notify service
-			All the setters return the object, but if a setting fails a
-			NotifierError Exception is thrown */
-		class NotifyFluent extends NotifyBase {
+    aethalides/systemd-notify is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
 
-			public function __construct(?string $strSocket=null) {
+    aethalides/systemd-notify is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
-				$this->setSocketLocation($strSocket);
-			}
+    You should have received a copy of the GNU General Public License
+    along with aethalides/systemd-notify.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
-			public function setPid(?int $intPid=null) : self {
+namespace Trakosoft\Systemd\Notify;
 
-				if($this->setVariable('MAINPID',1<$intPid?$intPid:getmypid())) {
+/** Fluent interface for interacting with the Systemd notify service
+ *	All the setters return the object, but if a setting fails a
+ *  NotifierError Exception is thrown
+ * 
+ *  @package Trakosoft\Systemd\Notify
+ */
+class NotifyFluent extends NotifyBase
+{
+    public function __construct(?string $strSocket = null)
+    {
+        $this->setSocketLocation($strSocket);
+    }
 
-					return $this;
-				}
+    public function setPid(?int $intPid = null): self
+    {
+        if ($this->setVariable('MAINPID', 1 < $intPid ? $intPid : getmypid())) {
+            return $this;
+        }
+        throw NotifierError::fluentFailureError('MAINPID');
+    }
 
-				throw NotifyError::fluentFailureError('MAINPID');
-			}
+    public function setStatus(?string $strStatus = null): self
+    {
+        if ($this->setVariable('STATUS', $strStatus)) {
+            return $this;
+        }
+        throw NotifierError::fluentFailureError('STATUS');
+    }
 
-			public function setStatus(?string $strStatus=null) : self {
+    public function setHeartbeat(bool $blReset = false): self
+    {
+        if ($this->setVariable('WATCHDOG', $blReset ? null : 1)) {
+            return $this;
+        }
+        throw NotifierError::fluentFailureError('STATUS');
+    }
 
-				if($this->setVariable('STATUS',$strStatus)) {
+    public function setReady(bool $blReset = false): self
+    {
+        if ($this->setVariable('READY', $blReset ? null : 1)) {
+            return $this;
+        }
+        throw NotifierError::fluentFailureError('READY');
+    }
 
-					return $this;
-				}
+    public function setReloading(bool $blReset = false): self
+    {
+        if ($this->setVariable('RELOADING', $blReset ? null : 1)) {
+            return $this;
+        }
+        throw NotifierError::fluentFailureError('RELOADING');
+    }
 
-				throw NotifyError::fluentFailureError('STATUS');
-			}
-
-			public function setHeartbeat(bool $blReset=false) : self {
-
-				if($this->setVariable('WATCHDOG',$blReset?null:1)) {
-
-					return $this;
-				}
-
-				throw NotifyError::fluentFailureError('STATUS');
-			}
-
-			public function setReady(bool $blReset=false) : self {
-
-				if($this->setVariable('READY',$blReset?null:1)) {
-
-					return $this;
-				}
-
-				throw NotifyError::fluentFailureError('READY');
-			}
-
-			public function setReloading(bool $blReset=false) : self {
-
-				if($this->setVariable('RELOADING',$blReset?null:1)) {
-
-					return $this;
-				}
-
-				throw NotifyError::fluentFailureError('RELOADING');
-			}
-
-			public function setStopping(bool $blReset=false) : self {
-
-				if($this->setVariable('STOPPING',$blReset?null:1)) {
-
-					return $this;
-				}
-
-				throw NotifyError::fluentFailureError('STOPPING');
-			}
-		}
-	}
-?>
+    public function setStopping(bool $blReset = false): self
+    {
+        if ($this->setVariable('STOPPING', $blReset ? null : 1)) {
+            return $this;
+        }
+        throw NotifierError::fluentFailureError('STOPPING');
+    }
+}
