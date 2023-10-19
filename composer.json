@@ -1,9 +1,9 @@
 {
     "name": "trakosoft/systemd-notify",
     "description": "Interact with the Systemd Notify daemon for service lifecycle integration. A PHP 8 fork of aethalides/systemd-notify",
+    "homepage": "https://github.com/bpali/systemd-notify",
     "type": "library",
-    "license": "GPL-3.0",
-    "version": "1.0.0",
+    "license": "GPL-3.0-or-later",
     "authors": [
         {
             "name": "Bogdan Pali",
